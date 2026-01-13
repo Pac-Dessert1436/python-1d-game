@@ -11,13 +11,14 @@ This is a Python port of the 1D-Game, a unique first-person game experienced fro
 
 ## Features
 
-- **1D Perspective Rendering**: Experience the world through a unique ray-casting system that simulates vision from a 2D entity's viewpoint
-- **Procedural Level Generation**: Each level is randomly generated with unique pathways and enemy placements
-- **Enemy AI**: Navigate levels while avoiding hostile entities
-- **Weapon System**: Shoot bullets to defend yourself
-- **Multiple Texture Packs**: Choose from different visual themes
-- **2D Minimap**: Optional minimap for spatial awareness
-- **Responsive Controls**: Smooth movement and rotation mechanics
+- **1D Perspective Rendering**: Experience the world through a custom ray-casting system that simulates vision from a 2D entity's viewpoint, delivering a truly unique visual experience
+- **Procedural Level Generation**: Each level is dynamically and randomly generated with distinct pathways, enemy spawn points, and environmental layouts
+- **Enemy AI**: Navigate procedurally generated levels while evading hostile entities with basic pathfinding behavior
+- **Refined Enemy Visual Identity**: Enemy colors in the 1D view are precisely calibrated to RGB value (255, 0, 192), eliminating visual overlap with the player's color scheme for clearer distinction
+- **Weapon System**: Defend yourself against hostiles by firing bullets at enemies within your field of view
+- **Multiple Texture Packs**: Customize your visual experience with a selection of distinct thematic texture packs
+- **2D Minimap**: Optional minimap overlay to enhance spatial awareness and navigation
+- **Responsive Controls**: Enjoy smooth, fluid movement (forward/backward/strafing) and rotation mechanics for precise navigation
 
 ## Installation
 
@@ -59,11 +60,12 @@ This is a Python port of the 1D-Game, a unique first-person game experienced fro
 
 ## Gameplay
 
-1. **Objective**: Find the white exit portal to advance to the next level
-2. **Navigation**: Use the 1D perspective and optional minimap to explore the level
-3. **Combat**: Shoot enemies when they appear in your field of view
-4. **Health**: Avoid enemy attacks to maintain your health
-5. **Progression**: Each level becomes progressively more challenging with increased enemy counts and complex pathways
+1. **Core Objective**: Locate and reach the white exit portal to progress to the next increasingly challenging level
+2. **Navigation**: Utilize the unique 1D perspective for immersive exploration, or enable the optional 2D minimap for enhanced spatial orientation
+3. **Combat Mechanics**: Engage hostile entities by shooting bullets when they appear within your 1D field of view
+4. **Enemy Threat**: Each enemy attack inflicts a consistent 10 HP of damage – avoid direct contact and prioritize evasion or elimination
+5. **Health Recovery**: Collect green health power-ups (marked by a green plus sign on the minimap) to restore 15 HP and sustain your survival
+6. **Progressive Difficulty**: Each subsequent level ramps up the challenge with increased enemy spawn rates and more complex level geometry
 
 ## Project Structure
 

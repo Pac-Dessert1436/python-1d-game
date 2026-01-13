@@ -37,6 +37,14 @@ class Bullet:
 
 
 @dataclass
+class Powerup:
+    x: float
+    y: float
+    type: int
+    collected: bool
+
+
+@dataclass
 class Pathway:
     x: float
     y: float
@@ -108,7 +116,7 @@ textures: List2D[Color] = [
 ]
 
 enemy_eye_color: Color = (255, 255, 255)
-enemy_body_color: Color = (255, 0, 255)
+enemy_body_color: Color = (255, 0, 192)
 
 enemy_texture_1d: list[Color] = [
     enemy_body_color,
@@ -118,6 +126,15 @@ enemy_texture_1d: list[Color] = [
     enemy_eye_color,
     enemy_body_color
 ]
+
+powerup_texture_1d: list[Color] = [
+    (255, 255, 255),
+    (0, 255, 0),
+    (255, 255, 255),
+    (0, 255, 0),
+    (255, 255, 255),
+    (0, 255, 0)
+] 
 
 game_over_background: Color = (0, 0, 0)
 game_over_foreground: Color = (255, 255, 255)
@@ -176,10 +193,15 @@ spawn_enemies = True
 bullet_type = 3
 bullets: list[Bullet] = []
 
+powerup_type = 4
+powerups: list[Powerup] = []
+
 bullet_offset = 0
 bullet_max = 8
 enemy_offset = bullet_offset + bullet_max
 enemy_max = 16
+powerup_offset = enemy_offset + enemy_max
+powerup_max = 4
 
 enemies.append(
     Enemy(x=8, y=10, x_vel=0, y_vel=0, type=enemy_type, dir=0, state=0)

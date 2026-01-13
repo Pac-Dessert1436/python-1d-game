@@ -58,9 +58,10 @@ def available(x: float, y: float) -> bool:
 
 
 def generate_world(size: int) -> None:
-    global world, enemies
+    global world, enemies, powerups
     size = size * 3 + 1
     enemies = []
+    powerups = []
 
     world = []
     for i in range(size):
@@ -111,6 +112,25 @@ def generate_world(size: int) -> None:
                 pathways.pop(i)
 
     world[int(max_pathway.y)][int(max_pathway.x)] = 2
+
+    # Generate 1-2 powerups randomly on the map
+    num_powerups = 1 if random() > 0.5 else 2
+    powerup_positions = []
+    for y in range(1, len(world) - 1):
+        for x in range(1, len(world[y]) - 1):
+            if world[y][x] == 0:
+                powerup_positions.append((x, y))
+
+    for _ in range(num_powerups):
+        if powerup_positions:
+            pos = powerup_positions[int(random() * len(powerup_positions))]
+            powerups.append(Powerup(
+                x=pos[0] + 0.5,
+                y=pos[1] + 0.5,
+                type=powerup_type,
+                collected=False
+            ))
+            powerup_positions.remove(pos)
 
 
 def cast_ray(px: float, py: float, dir: float) -> Color:
@@ -274,6 +294,70 @@ def cast_ray(px: float, py: float, dir: float) -> Color:
                         color = enemy_texture_1d[color_index]
                         break
 
+            if color is None:
+                powerup_bits = tile_bits >> powerup_offset
+                for i in range(powerup_max):
+                    if powerup_bits == 0:
+                        break
+
+                    if (powerup_bits & 1) == 0:
+                        powerup_bits >>= 1
+                        continue
+
+                    powerup_bits >>= 1
+
+                    if i < len(powerups) and not powerups[i].collected:
+                        p = powerups[i]
+                        p_dist_x = p.x - player.x
+                        p_dist_y = p.y - player.y
+
+                        x_int = 0
+                        y_int = 0
+
+                        if p_dist_x == 0:
+                            y_int = p.y
+                            x_int = px + (y_int - py) / m if m != 0 else px
+                        elif p_dist_y == 0:
+                            x_int = p.x
+                            y_int = py + (x_int - px) * m
+                        else:
+                            p_dist = math.sqrt(p_dist_x ** 2 + p_dist_y ** 2)
+
+                            if p_dist == 0:
+                                continue
+
+                            x_comp_p = -p_dist_y / p_dist
+                            y_comp_p = p_dist_x / p_dist
+
+                            a1 = -y_comp
+                            b1 = x_comp
+                            a2 = -y_comp_p
+                            b2 = x_comp_p
+
+                            denominator = a1 * b2 - a2 * b1
+                            if denominator == 0:
+                                continue
+
+                            c1 = a1 * px + b1 * py
+                            c2 = a2 * p.x + b2 * p.y
+
+                            y_int = (a1 * c2 - a2 * c1) / (a1 * b2 - a2 * b1)
+                            x_int = p.x + (y_int - p.y) * (x_comp_p /
+                                                           y_comp_p) if y_comp_p != 0 else p.x
+
+                        dist_to_int = math.sqrt(
+                            (x_int - p.x) ** 2 + (y_int - p.y) ** 2)
+
+                        if dist_to_int > 0.25:
+                            continue
+
+                        color_index = math.floor(
+                            dist_to_int / 0.25 * len(powerup_texture_1d))
+                        color_index = max(
+                            0, min(color_index, len(powerup_texture_1d) - 1))
+                        color = powerup_texture_1d[color_index]
+                        break
+
             if color is not None:
                 pass
             else:
@@ -355,6 +439,19 @@ def check_collision(entity: Player | Enemy, moving_horiz: bool) -> None:
                         player.cooldown = hit_cooldown
                         player.health -= 10
 
+                # Check powerup collision for player
+                if entity == player:
+                    for p in powerups:
+                        if not p.collected:
+                            px = player.x - p.x
+                            py = player.y - p.y
+                            p_dist = math.sqrt(px ** 2 + py ** 2)
+                            if p_dist < 0.5:
+                                p.collected = True
+                                player.health += 15
+
+    player.health = int(pygame.math.clamp(player.health, 0, 100))
+
 
 def clear_all_bullet_bits() -> None:
     for i, b in enumerate(bullets):
@@ -423,6 +520,44 @@ def write_enemy_bits(i: int) -> None:
                 if world[y][x] < 1:
                     tileBits = -world[y][x]
                     tileBits |= 1 << (i + enemy_offset)
+                    world[y][x] = -tileBits
+
+
+def clear_powerup_bits(i: int) -> None:
+    p = powerups[i]
+    if p.collected:
+        return
+
+    left_bound_x = math.floor(p.x - 0.25)
+    right_bound_x = math.ceil(p.x + 0.25)
+    top_bound_y = math.floor(p.y - 0.25)
+    bottom_bound_y = math.ceil(p.y + 0.25)
+
+    for y in range(top_bound_y, bottom_bound_y):
+        for x in range(left_bound_x, right_bound_x):
+            if 0 <= y < len(world) and 0 <= x < len(world[y]):
+                if world[y][x] < 1:
+                    tile_bits = -world[y][x]
+                    tile_bits &= ~(1 << (i + powerup_offset))
+                    world[y][x] = -tile_bits
+
+
+def write_powerup_bits(i: int) -> None:
+    p = powerups[i]
+    if p.collected:
+        return
+
+    left_bound_x = math.floor(p.x - 0.25)
+    right_bound_x = math.ceil(p.x + 0.25)
+    top_bound_y = math.floor(p.y - 0.25)
+    bottom_bound_y = math.ceil(p.y + 0.25)
+
+    for y in range(top_bound_y, bottom_bound_y):
+        for x in range(left_bound_x, right_bound_x):
+            if i < powerup_max and 0 <= y < len(world) and 0 <= x < len(world[y]):
+                if world[y][x] < 1:
+                    tileBits = -world[y][x]
+                    tileBits |= 1 << (i + powerup_offset)
                     world[y][x] = -tileBits
 
 
@@ -565,6 +700,16 @@ def render() -> None:
             enemy_x = int((e.x - player.x) * 32 + c_x)
             enemy_y = int((e.y - player.y) * 32 + c_y)
             pygame.draw.circle(minimap, (255, 0, 0), (enemy_x, enemy_y), 8)
+
+        # Draw powerups
+        for p in powerups:
+            if p.collected:
+                continue
+            powerup_x = int((p.x - player.x) * 32 + c_x)
+            powerup_y = int((p.y - player.y) * 32 + c_y)
+            # Draw a green plus sign
+            pygame.draw.line(minimap, (0, 255, 0), (powerup_x, powerup_y - 6), (powerup_x, powerup_y + 6), 2)
+            pygame.draw.line(minimap, (0, 255, 0), (powerup_x - 6, powerup_y), (powerup_x + 6, powerup_y), 2)
 
         screen.blit(minimap, (width - minimap_width - 10, 10))
 
@@ -803,6 +948,11 @@ while running:
             check_collision(e, False)
 
         write_enemy_bits(i)
+
+    # Update powerups
+    for i in range(len(powerups)):
+        clear_powerup_bits(i)
+        write_powerup_bits(i)
 
     # Update portal color animation
     portal_anim_speed = 5 * tr
