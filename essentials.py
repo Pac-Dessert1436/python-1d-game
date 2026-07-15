@@ -96,8 +96,8 @@ running: bool = True
 
 # Minimap
 
-FONT_NAME = "Lucida Console"
-game_dialog = GameDialog(screen, FONT_NAME)
+FONT_PATH = "fusion-pixel-12px-monospaced-latin.ttf"
+game_dialog = GameDialog(screen, FONT_PATH)
 tex_index = get_texture_index(game_dialog)
 
 # Textures (converted from JS objects to Python tuples)

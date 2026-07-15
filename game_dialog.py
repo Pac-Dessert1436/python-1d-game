@@ -9,13 +9,13 @@ class GameDialog:
         ok: bool = False
         value: str = ""
 
-    def __init__(self, screen: pygame.Surface, font_name: str):
+    def __init__(self, screen: pygame.Surface, font_path: str):
         self.screen = screen
-        self.font_name = font_name
-        self.title_font = pygame.font.SysFont(font_name, 28, True)
-        self.content_font = pygame.font.SysFont(font_name, 24)
-        self.input_font = pygame.font.SysFont(font_name, 24)
-        self.button_font = pygame.font.SysFont(font_name, 22, True)
+        self.font_name = font_path
+        self.title_font = pygame.font.Font(font_path, 28)
+        self.content_font = pygame.font.Font(font_path, 24)
+        self.input_font = pygame.font.Font(font_path, 24)
+        self.button_font = pygame.font.Font(font_path, 22)
 
         self.bg_color = (50, 50, 60)
         self.border_color = (100, 100, 120)

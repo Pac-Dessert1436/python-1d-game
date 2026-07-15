@@ -714,7 +714,7 @@ def render() -> None:
         screen.blit(minimap, (width - minimap_width - 10, 10))
 
     # Draw player info HUD
-    large_font = pygame.font.SysFont(FONT_NAME, 32, True)
+    large_font = pygame.font.Font(FONT_PATH, 32)
     info_y = 10
     line_height = 30
     hud_color = (255, 255, 0) if tex_index in (0, 3, 6) else (255, 255, 255)
@@ -731,7 +731,7 @@ def render() -> None:
     info_y += line_height + 10
 
     # Controls info
-    controls_font = pygame.font.SysFont(FONT_NAME, 24)
+    controls_font = pygame.font.Font(FONT_PATH, 24)
     controls = [
         "Controls:",
         "W/↑ = Forward",
